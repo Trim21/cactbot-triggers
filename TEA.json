@@ -6,6 +6,7 @@
   "homepage": "https://github.com/Trim21/TEA",
   "files": [
     "./TEA/temporal-stasis.js",
+    "./TEA/limit-cut.js",
     "./TEA/trine-initial.js"
   ]
 }
