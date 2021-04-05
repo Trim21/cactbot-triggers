@@ -1,0 +1,11 @@
+{
+  "name": "TEA",
+  "author": "Trim21",
+  "type": "raidboss",
+  "version": "0.0.1",
+  "homepage": "https://github.com/Trim21/TEA",
+  "files": [
+    "./TEA/temporal-stasis.js",
+    "./TEA/trine-initial.js"
+  ]
+}
