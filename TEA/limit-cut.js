@@ -63,6 +63,21 @@ Options.Triggers.push({
   ],
   triggers: [
     {
+      id: 'TEA Limit Cut Numbers',
+      disabled: true,
+      netRegex: NetRegexes.startsUsing({
+        source: 'Liquid Hand',
+        id: '482D',
+        capture: false
+      }),
+      netRegexCn: NetRegexes.startsUsing({
+        source: 'Liquid Hand',
+        id: '482D',
+        capture: false
+      }),
+    },
+
+    {
       // Applies to both limit cuts.
       id: 'TEA p2 麻将',
       netRegex: NetRegexes.headMarker({}),
