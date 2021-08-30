@@ -1,5 +1,5 @@
 {
     "files": [
-        "../src/name_to_job.ts"
+        "./src/name_to_job.ts"
     ]
 }
