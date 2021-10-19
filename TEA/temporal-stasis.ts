@@ -124,3 +124,5 @@ export const trigger: TriggerSet<TEAData> = {
     },
   ],
 };
+
+Options.Triggers.push(trigger);
