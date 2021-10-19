@@ -1,25 +1,69 @@
-function isTemporalStasis (data) {
+/*
+时停
+ */
+import NetRegexes from 'NetRegexes';
+
+import { TargetedMatches } from '@type/trigger';
+
+import { TriggerSet } from '../../cactbot';
+import { TEAData } from './data';
+
+function isTemporalStasis (data: TEAData) {
   // return (data.userPhase === 'Temporal Stasis') &&
-  return data.phase === 'brute'
+  return data.phase === 'brute';
 }
 
-Options.Triggers.push({
+export const trigger: TriggerSet<TEAData> = {
   zoneId: ZoneId.TheEpicOfAlexanderUltimate,
   triggers: [
     {
-      id: 'TEA 时停 无Buff',
-      // This id is "restraining order".
+      id: 'TEA Temporal Stasis No Buff',
+      disabled: true,
+    },
+    {
+      id: 'TEA inception 无 Buff',
+      // this is part of `TEA Temporal Stasis No Buff`
+      type: 'GainsEffect',
       netRegex: NetRegexes.gainsEffect({ effectId: '464', capture: false }),
-      condition: function (data) {
-        return isTemporalStasis(data)
+      condition: (data) => {
+        return data.phase === 'inception';
       },
       delaySeconds: 0.5,
       durationSeconds: 10,
       suppressSeconds: 1,
-      alertText: function (data, _, output) {
-        if (data.me in data.buffMap) return
-        if (data.role === 'dps') return output.DPS()
-        return output.TH()
+      infoText: (data, _matches, output) => {
+        if (data.buffMap?.[data.me]) {
+          return;
+        }
+        return output.text!();
+      },
+      outputStrings: {
+        text: {
+          en: 'No Debuff',
+          de: 'Kein Debuff',
+          fr: 'Pas de Debuff',
+          ja: 'デバフ無し',
+          cn: '无 Debuff',
+          ko: '디버프 없음',
+        },
+      },
+    },
+    {
+      id: 'TEA 时停 无Buff',
+      type: 'GainsEffect',
+      netRegex: NetRegexes.gainsEffect({ effectId: '464', capture: false }),
+      condition: isTemporalStasis,
+      delaySeconds: 0.5,
+      durationSeconds: 10,
+      suppressSeconds: 1,
+      alertText (data, _, output) {
+        if (data.me in data.buffMap) {
+          return;
+        }
+        if (data.role === 'dps') {
+          return output.DPS!();
+        }
+        return output.TH!();
       },
       outputStrings: {
         TH: '左侧 boss 上方',
@@ -28,15 +72,18 @@ Options.Triggers.push({
     },
     {
       id: 'TEA 时停 远线',
+      type: 'GainsEffect',
       netRegex: NetRegexes.gainsEffect({ effectId: '464' }),
-      condition: function (data, matches) {
-        return matches.target === data.me && isTemporalStasis(data)
+      condition (data, matches) {
+        return matches.target === data.me && isTemporalStasis(data);
       },
       delaySeconds: 0.5,
       durationSeconds: 10,
-      alertText: function (data, _, output) {
-        if (data.role === 'dps') return output.DPS()
-        return output.TH()
+      alertText (data, _, output) {
+        if (data.role === 'dps') {
+          return output.DPS!();
+        }
+        return output.TH!();
       },
       outputStrings: {
         TH: '去场地左侧边缘 有飞机靠近',
@@ -45,15 +92,18 @@ Options.Triggers.push({
     },
     {
       id: 'TEA 时停 近线',
+      type: 'GainsEffect',
       netRegex: NetRegexes.gainsEffect({ effectId: '463' }),
       condition (data, matches) {
-        return (matches.target === data.me) && isTemporalStasis(data)
+        return matches.target === data.me && isTemporalStasis(data);
       },
       delaySeconds: 1,
       durationSeconds: 10,
       alertText: (data, _, output) => {
-        if (data.role === 'dps') return output.DPS()
-        return output.TH()
+        if (data.role === 'dps') {
+          return output.DPS!();
+        }
+        return output.TH!();
       },
       outputStrings: {
         TH: '右侧 boss 上方',
@@ -62,16 +112,17 @@ Options.Triggers.push({
     },
     {
       id: 'TEA 时停 电',
+      type: 'GainsEffect',
       netRegex: NetRegexes.gainsEffect({ effectId: '461' }),
-      condition (data, matches) {
-        return matches.target === data.me && isTemporalStasis(data)
+      condition (data, matches: TargetedMatches) {
+        return matches.target === data.me && isTemporalStasis(data);
       },
       delaySeconds: 0.5,
       durationSeconds: 10,
-      alertText: (data, _, output) => output.text(),
+      alertText: (data, _, output) => output.text!(),
       outputStrings: {
         text: '正义方向场地边缘',
       },
     },
   ],
-})
+};
