@@ -1,8 +1,6 @@
 /*
 时停
  */
-import NetRegexes from 'NetRegexes';
-
 import { TargetedMatches } from '@type/trigger';
 
 import { TriggerSet } from '../../cactbot';
