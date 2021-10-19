@@ -1,19 +1,22 @@
+import { TriggerSet } from '../../cactbot';
+import { TEAData } from './data';
+
 // p2转场和二运麻将
 
-const getHeadmarkerId = (data, matches) => {
+const getHeadmarkerId = (data: TEAData, matches: { id: string }) => {
   // If we naively just check !data.decOffset and leave it, it breaks if the first marker is 004F.
   // (This makes the offset 0, and !0 is true.)
   if (typeof data.decOffset === 'undefined') {
     // The first 1B marker in the encounter is Limit Cut 1, ID 004F.
-    data.decOffset = parseInt(matches.id, 16) - 79
+    data.decOffset = parseInt(matches.id, 16) - 79;
   }
   // The leading zeroes are stripped when converting back to string, so we re-add them here.
   // Fortunately, we don't have to worry about whether or not this is robust,
   // since we know all the IDs that will be present in the encounter.
-  return '00' + (parseInt(matches.id, 16) - data.decOffset).toString(16).toUpperCase()
-}
+  return '00' + (parseInt(matches.id, 16) - data.decOffset).toString(16).toUpperCase();
+};
 
-const LimitCut = {
+const limitCut = {
   num1: '麻将1 同侧 下方 引导激光 灵泉3',
   num2: '麻将2 对侧 下方 灵泉3',
   num3: '麻将3 同侧 上方',
@@ -22,19 +25,23 @@ const LimitCut = {
   num6: '麻将6 对侧 中间 灵泉1 下方',
   num7: '麻将7 同侧 中间 灵泉2 上方',
   num8: '麻将8 对侧 中间 灵泉2 上方',
-}
+};
 
-Options.Triggers.push({
+export const trigger: TriggerSet<TEAData> = {
   zoneId: ZoneId.TheEpicOfAlexanderUltimate,
   timelineTriggers: [
+    {
+      id: 'TEA Wormhole Puddle',
+      disabled: true,
+    },
     {
       id: '灵泉1',
       regex: /Repentance 1/,
       beforeSeconds: 3,
       durationSeconds: 4,
-      alertText (data) {
+      alertText(data) {
         if ([5, 6].includes(data.limitCutNumber)) {
-          return '踩灵泉'
+          return '踩灵泉1';
         }
       },
     },
@@ -43,9 +50,9 @@ Options.Triggers.push({
       regex: /Repentance 2/,
       beforeSeconds: 3,
       durationSeconds: 4,
-      alertText (data) {
+      alertText(data) {
         if ([7, 8].includes(data.limitCutNumber)) {
-          return '踩灵泉'
+          return '踩灵泉2';
         }
       },
     },
@@ -54,44 +61,46 @@ Options.Triggers.push({
       regex: /Repentance 3/,
       beforeSeconds: 3,
       durationSeconds: 4,
-      alertText (data) {
+      alertText(data) {
         if ([1, 2].includes(data.limitCutNumber)) {
-          return '踩灵泉'
+          return '踩灵泉3';
         }
       },
-    }
+    },
   ],
   triggers: [
     {
       id: 'TEA Limit Cut Numbers',
       disabled: true,
+      type: 'StartsUsing',
       netRegex: NetRegexes.startsUsing({
         source: 'Liquid Hand',
         id: '482D',
-        capture: false
+        capture: false,
       }),
       netRegexCn: NetRegexes.startsUsing({
         source: 'Liquid Hand',
         id: '482D',
-        capture: false
+        capture: false,
       }),
     },
 
     {
       // Applies to both limit cuts.
       id: 'TEA p2 麻将',
+      type: 'HeadMarker',
       netRegex: NetRegexes.headMarker({}),
-      condition: function (data, matches) {
+      condition(data, matches) {
         // Here and elsewhere, it's probably best to check for whether the user is the target first,
         // as that should short-circuit more often.
         return (
           data.me === matches.target &&
           /00(?:4F|5[0-6])/.test(getHeadmarkerId(data, matches)) &&
           data.phase !== 'wormhole'
-        )
+        );
       },
-      preRun: function (data, matches) {
-        const correctedMatch = getHeadmarkerId(data, matches)
+      preRun(data, matches) {
+        const correctedMatch = getHeadmarkerId(data, matches);
         data.limitCutNumber = {
           '004F': 1,
           '0050': 2,
@@ -101,7 +110,7 @@ Options.Triggers.push({
           '0054': 6,
           '0055': 7,
           '0056': 8,
-        }[correctedMatch]
+        }[correctedMatch]!;
         data.limitCutDelay = {
           '004F': 9.5,
           '0050': 11,
@@ -111,29 +120,30 @@ Options.Triggers.push({
           '0054': 20,
           '0055': 23.2,
           '0056': 24.6,
-        }[correctedMatch]
+        }[correctedMatch]!;
       },
       durationSeconds: 25,
-      infoText (data) {
-        return `麻将 ${data.limitCutNumber}`
+      infoText(data) {
+        return `麻将 ${data.limitCutNumber}`;
       },
     },
 
     {
       // Applies to both limit cuts.
       id: 'TEA 二运',
+      type: 'HeadMarker',
       netRegex: NetRegexes.headMarker({}),
-      condition: function (data, matches) {
+      condition(data, matches) {
         // Here and elsewhere, it's probably best to check for whether the user is the target first,
         // as that should short-circuit more often.
         return (
           data.me === matches.target &&
           /00(?:4F|5[0-6])/.test(getHeadmarkerId(data, matches)) &&
           data.phase === 'wormhole'
-        )
+        );
       },
-      preRun: function (data, matches) {
-        const correctedMatch = getHeadmarkerId(data, matches)
+      preRun(data, matches) {
+        const correctedMatch = getHeadmarkerId(data, matches);
         data.limitCutNumber = {
           '004F': 1,
           '0050': 2,
@@ -143,7 +153,7 @@ Options.Triggers.push({
           '0054': 6,
           '0055': 7,
           '0056': 8,
-        }[correctedMatch]
+        }[correctedMatch]!;
         data.limitCutDelay = {
           '004F': 9.2,
           '0050': 10.7,
@@ -153,7 +163,7 @@ Options.Triggers.push({
           '0054': 19.2,
           '0055': 22.0,
           '0056': 23.4,
-        }[correctedMatch]
+        }[correctedMatch]!;
       },
       durationSeconds: 60,
       // durationSeconds: function (data) {
@@ -161,28 +171,29 @@ Options.Triggers.push({
       // show the number until you are done.
       // return data.limitCutDelay
       // },
-      infoText: function (data, _, output) {
-        return output[`num${data.limitCutNumber}`]()
+      infoText(data, _, output) {
+        return output[`num${data.limitCutNumber}`]!();
       },
-      outputStrings: LimitCut,
+      outputStrings: limitCut,
     },
     {
       id: 'TEA Shared Sentence Inception',
+      type: 'GainsEffect',
       netRegex: NetRegexes.gainsEffect({ effectId: '462' }),
       condition: (data) => data.phase === 'inception',
       delaySeconds: 3,
-      infoText: function (data, matches, output) {
+      infoText(data, matches, output) {
         switch (data.role) {
           case 'tank':
-            return output.T()
+            return output.T!();
           case 'healer':
-            return output.H()
+            return output.H!();
           case 'dps':
             if (data.me === matches.target) {
-              return output.DPSShared()
-            } else {
-              return output.DPSNonShared()
+              return output.DPSShared!();
             }
+
+            return output.DPSNonShared!();
         }
       },
       outputStrings: {
@@ -193,4 +204,4 @@ Options.Triggers.push({
       },
     },
   ],
-})
+};
