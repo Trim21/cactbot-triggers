@@ -45,6 +45,8 @@ export const nameToJobEnum: Record<number, string> = {
   36: '青魔',
   37: '枪刃',
   38: '舞者',
+  39: '钐镰客',
+  40: '贤者',
 };
 
 const playerNicks: Record<string, string> = (Options.PlayerNicks = {});
