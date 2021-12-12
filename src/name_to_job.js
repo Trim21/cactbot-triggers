@@ -43,6 +43,8 @@
     36: '青魔',
     37: '枪刃',
     38: '舞者',
+    39: '钐镰客',
+    40: '贤者',
   };
   const playerNicks = (Options.PlayerNicks = {});
   addOverlayListener('PartyChanged', (e) => {
